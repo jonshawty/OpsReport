@@ -1,0 +1,65 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: opsreport-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-opsreport}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-opsreport}
+      POSTGRES_DB: ${POSTGRES_DB:-opsreport}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - opsreport_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-opsreport} -d ${POSTGRES_DB:-opsreport}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - opsnet
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: opsreport-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-opsreport}:${POSTGRES_PASSWORD:-opsreport}@postgres:5432/${POSTGRES_DB:-opsreport}?schema=public
+      JWT_SECRET: ${JWT_SECRET:-change-this-in-production-please}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      PORT: 3001
+      NODE_ENV: ${NODE_ENV:-development}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:8080}
+      SEED_USER_EMAIL: ${SEED_USER_EMAIL:-admin@opsreport.local}
+      SEED_USER_PASSWORD: ${SEED_USER_PASSWORD:-admin123}
+    ports:
+      - "${BACKEND_PORT:-3001}:3001"
+    networks:
+      - opsnet
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: opsreport-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+    networks:
+      - opsnet
+
+volumes:
+  opsreport_pg:
+
+networks:
+  opsnet:
+    driver: bridge

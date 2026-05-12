@@ -1,0 +1,83 @@
+============================================================
+EXEMPLOS DE CHAMADOS - OpsReport
+============================================================
+
+# Cole estes exemplos na área de "Processar Chamados" para testar.
+
+# --- Exemplo 1: chamado simples inline ---
+
+30/03 - Alert
+#520992: PRD | MOVEL | MSE brux1044 - Realizado o restart da aplicação. Normalizado.
+
+# --- Exemplo 2: chamado simples sem atuação ---
+
+30/03 - Alert
+#520993: PRD | FIXO | BPEL brux1608 - Sem atuação. Normalizado.
+
+# --- Exemplo 3: chamado multilinha completo (formato Splunk ITSI) ---
+
+Alert
+#580731: PRD | MOVEL | MSE
+❗ Priority
+P1
+✅ Status
+Open
+🧯 Responders
+CLBR-TI-OPS-PROD-WEB
+🏷️ Tags
+Splunk ITSI, Automatic
+Description
+Entidades Raiz:
+* CLMSELX7352
+Informações dos Alertas:
+* LOW DISK SPACE
+URLs Ativas:
+* https://splunk.example.com/itsi/alert/580731
+
+# --- Exemplo 4: chamado para grupo de integração ---
+
+Alert
+#580800: PRD | MOVEL | OSB
+❗ Priority
+P2
+✅ Status
+Open
+🧯 Responders
+CLBR-TI-OPS-PROD-INTEGRACAO
+🏷️ Tags
+Splunk ITSI
+Description
+Entidades Raiz:
+* CLNETSMSLX6445
+Informações dos Alertas:
+* HIGH CPU USAGE - Em monitoramento
+
+# --- Exemplo 5: hostname com prefixo diferente (SPG -> Wildfly) ---
+
+01/04 - Alert
+#600100: PRD | FIXO | SPG brux9999 - Realizado o restart. Normalizado.
+
+# --- Exemplo 6: WPP (Weblogic) com encaminhamento ---
+
+Alert
+#600200: PRD | MOVEL | WPP brux2222
+Status
+Open
+Description
+Encaminhar para equipe responsável pela aplicação WPP.
+
+# --- Exemplo 7: EDOC (Weblogic) ---
+
+02/04 - Alert
+#600300: PRD | FIXO | EDOC brux5555 - Em monitoramento.
+
+# --- Exemplo 8: COTI INFORMA - ALERTA CRITICO (Orquestrador/Cockpit) ---
+
+COTI INFORMA - ALERTA CRITICO - PDST-2491660
+ITOPS_PROD WEB Conseguem apoiar?
+
+ORQUESTRADOR - COCKPIT - PROD.INTEGRACAO / brux1573 ( Weblogic )
+Alarmes (1)
+
+Código	Nível	Tipo	Nome	Target(s)	Erro	Instrução	Resp.
+3401	ERROR	application	cockpit-backend-rest-1.5.0_08-SNAPSHOT	Listar Targ.	Aplicação indisponível	Verifique aplicação	Acione Plantonista Prod-Web

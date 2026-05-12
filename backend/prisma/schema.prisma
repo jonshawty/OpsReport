@@ -1,0 +1,81 @@
+// Prisma schema - OpsReport
+// Modelos: User (auth), Import (lote de importação), Ticket (chamado parseado)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      String   @default("user") // user | admin
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  imports Import[]
+
+  @@map("users")
+}
+
+model Import {
+  id          String   @id @default(uuid())
+  source      String   // 'paste' | 'txt' | 'csv' | 'xlsx'
+  fileName    String?
+  rawSize     Int      @default(0)
+  ticketCount Int      @default(0)
+  parseErrors Int      @default(0)
+  notes       String?
+  createdAt   DateTime @default(now())
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  tickets Ticket[]
+
+  @@index([createdAt])
+  @@map("imports")
+}
+
+model Ticket {
+  id String @id @default(uuid())
+
+  // Campos principais extraídos do parser
+  ticketId         String?  // ex: #520992
+  date             DateTime?
+  rawDate          String?
+  environment      String?  // PRD | HML | DEV
+  segment          String?  // MOVEL | FIXO | ...
+  system           String?  // ex: MSE, BPEL, OSB
+  hostname         String?
+  technology       String?  // ex: Weblogic, SOA Suite (mapeado a partir do system)
+  operatingSystem  String?  @default("Linux/Unix")
+  description      String?
+  status           String?  // Resolvido | Direcionado | Em Monitoramento | Aberto
+  priority         String?  // P1..P5
+  responders       String?
+  tags             String?
+  urls             String?
+  solverGroup      String?  // Prod-Web | Prod-Integracao
+  isRestart        Boolean  @default(false)
+  analyst          String?  // analista responsável (preenchido manualmente)
+  rawText          String?  // bloco original (para auditoria)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  importId String?
+  import   Import? @relation(fields: [importId], references: [id], onDelete: SetNull)
+
+  @@index([ticketId])
+  @@index([hostname])
+  @@index([system])
+  @@index([date])
+  @@map("tickets")
+}
