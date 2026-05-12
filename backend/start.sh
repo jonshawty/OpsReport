@@ -28,7 +28,7 @@ async function run() {
     console.log(e.message);
   }
 
-  await prisma.$disconnect();
+  await prisma.\$disconnect();
 }
 
 run()
